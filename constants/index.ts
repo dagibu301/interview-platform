@@ -230,58 +230,58 @@ export const dummyInterviews: Interview[] = [
 ];
 
 export const generator: CreateWorkflowDTO = {
-  name: "interviewPrepNewVersion",
+  name: "interview_prep",
   nodes: [
     {
-      name: "introduction",
+      name: "Conversation",
       type: "conversation",
       isStart: true,
       metadata: {
         position: {
-          x: -400,
-          y: -100,
+          x: 0,
+          y: 0,
         },
       },
-      prompt: "Greet the user and help them create a new AI Interviewer\n",
+      prompt: "Greet the user and help them create a new AI Interviewer.",
       model: {
-        provider: "openai",
         model: "gpt-4o",
-        temperature: 0.7,
+        provider: "openai",
         maxTokens: 1000,
+        temperature: 0.7,
       },
       variableExtractionPlan: {
         output: [
           {
+            enum: ["junior", "mid", "senior"],
+            type: "string",
             title: "level",
             description: "The job experience level.",
-            type: "string",
-            enum: [],
           },
           {
+            enum: [],
+            type: "number",
             title: "amount",
             description: "How many questions would you like to generate?",
-            type: "number",
-            enum: [],
           },
           {
+            enum: [],
+            type: "string",
             title: "techstack",
             description:
-              "A list of technologies to cover during the job interview. For example, React, Next.js, Express.js, Node and so on...",
-            type: "string",
-            enum: [],
+              "A list of technologies to cover during the job interview. For example, React, Next.js, Express.js, Node and so on…",
           },
           {
+            enum: [],
+            type: "string",
             title: "role",
             description:
               "What role should would you like to train for? For example Frontend, Backend, Fullstack, Design, UX?",
-            type: "string",
-            enum: [],
           },
           {
+            enum: [],
+            type: "string",
             title: "type",
             description: "What type of the interview should it be?",
-            type: "string",
-            enum: [],
           },
         ],
       },
@@ -290,20 +290,20 @@ export const generator: CreateWorkflowDTO = {
       },
     },
     {
-      name: "conversation_1748571678516",
+      name: "conversation_1748645484881",
       type: "conversation",
       metadata: {
         position: {
-          x: -402.09880071417706,
-          y: 261.23643785138506,
+          x: -5.3605923233195085,
+          y: 366.4014333063662,
         },
       },
       prompt: "Say that the Interview will be generated shortly.",
       model: {
-        provider: "openai",
         model: "gpt-4o",
-        temperature: 0.7,
+        provider: "openai",
         maxTokens: 1000,
+        temperature: 0.7,
       },
       messagePlan: {
         firstMessage: "",
@@ -314,106 +314,125 @@ export const generator: CreateWorkflowDTO = {
       type: "tool",
       metadata: {
         position: {
-          x: -402.09880071417706,
-          y: 511.23643785138506,
+          x: -5.3605923233195085,
+          y: 616.4014333063662,
         },
       },
       tool: {
-        type: "apiRequest",
-        function: {
-          name: "untitled_tool",
-          parameters: {
-            type: "object",
-            properties: {},
-            required: [],
-          },
-        },
-        name: "sendUserData",
         url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/vapi/generate`,
-        method: "POST",
-        headers: null,
         body: {
           type: "object",
           properties: {
             role: {
               type: "string",
-              description: "",
               value: "{{ role }}",
+              description: "",
             },
             type: {
               type: "string",
-              description: "",
               value: "{{ type }}",
+              description: "",
             },
             level: {
               type: "string",
-              description: "",
               value: "{{ level }}",
+              description: "",
             },
             amount: {
               type: "string",
+              value: "{{ level }}",
               description: "",
-              value: "{{ amount }}",
-            },
-            techstack: {
-              type: "string",
-              description: "",
-              value: "{{ techstack }}",
             },
             userid: {
               type: "string",
-              description: "",
               value: "{{ userid }}",
+              description: "",
             },
+            techstack: {
+              type: "string",
+              value: "{{ techstack }}",
+              description: "",
+            },
+          },
+        },
+        type: "apiRequest",
+        method: "POST",
+        function: {
+          name: "untitled_tool",
+          parameters: {
+            type: "object",
+            required: [],
+            properties: {},
           },
         },
       },
     },
     {
-      name: "conversation_1748572958482",
+      name: "conversation_1748645862553",
       type: "conversation",
       metadata: {
         position: {
-          x: -402.09880071417706,
-          y: 761.2364378513851,
+          x: -5.3605923233195085,
+          y: 866.4014333063662,
         },
       },
       prompt:
-        "Thank the user for the conversation and inform them that the interview was generated succesfully.",
+        "Say that the interview has been generated and thank the user for the call",
       model: {
-        provider: "openai",
         model: "gpt-4o",
-        temperature: 0.7,
+        provider: "openai",
         maxTokens: 1000,
+        temperature: 0.7,
       },
       messagePlan: {
         firstMessage: "",
       },
     },
+    {
+      name: "hangup_1748645926561",
+      type: "tool",
+      metadata: {
+        position: {
+          x: -5.058584990511292,
+          y: 1125.687305981525,
+        },
+      },
+      tool: {
+        type: "endCall",
+      },
+    },
   ],
   edges: [
     {
-      from: "introduction",
-      to: "conversation_1748571678516",
+      from: "Conversation",
+      to: "conversation_1748645484881",
       condition: {
         type: "ai",
         prompt: "If user provided all the required variables.",
       },
     },
     {
-      from: "conversation_1748571678516",
+      from: "conversation_1748645484881",
       to: "API Request",
       condition: {
         type: "ai",
-        prompt: "if the user said yes",
+        prompt: "",
       },
     },
     {
       from: "API Request",
-      to: "conversation_1748572958482",
+      to: "conversation_1748645862553",
       condition: {
         type: "ai",
-        prompt: "if the user said yes",
+        prompt: "",
+      },
+    },
+    {
+      from: "conversation_1748645862553",
+      to: "hangup_1748645926561",
+      condition: {
+        type: "ai",
+        prompt: "",
       },
     },
   ],
