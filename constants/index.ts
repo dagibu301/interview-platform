@@ -1,4 +1,4 @@
-import { CreateAssistantDTO } from "@vapi-ai/web/dist/api";
+import { CreateAssistantDTO, CreateWorkflowDTO } from "@vapi-ai/web/dist/api";
 import { z } from "zod";
 
 export const mappings = {
@@ -228,3 +228,195 @@ export const dummyInterviews: Interview[] = [
     createdAt: "2024-03-14T15:30:00Z",
   },
 ];
+
+export const generator: CreateWorkflowDTO = {
+  name: "interviewPrepNewVersion",
+  nodes: [
+    {
+      name: "introduction",
+      type: "conversation",
+      isStart: true,
+      metadata: {
+        position: {
+          x: -400,
+          y: -100,
+        },
+      },
+      prompt: "Greet the user and help them create a new AI Interviewer\n",
+      model: {
+        provider: "openai",
+        model: "gpt-4o",
+        temperature: 0.7,
+        maxTokens: 1000,
+      },
+      variableExtractionPlan: {
+        output: [
+          {
+            title: "level",
+            description: "The job experience level.",
+            type: "string",
+            enum: [],
+          },
+          {
+            title: "amount",
+            description: "How many questions would you like to generate?",
+            type: "number",
+            enum: [],
+          },
+          {
+            title: "techstack",
+            description:
+              "A list of technologies to cover during the job interview. For example, React, Next.js, Express.js, Node and so on...",
+            type: "string",
+            enum: [],
+          },
+          {
+            title: "role",
+            description:
+              "What role should would you like to train for? For example Frontend, Backend, Fullstack, Design, UX?",
+            type: "string",
+            enum: [],
+          },
+          {
+            title: "type",
+            description: "What type of the interview should it be?",
+            type: "string",
+            enum: [],
+          },
+        ],
+      },
+      messagePlan: {
+        firstMessage: "",
+      },
+    },
+    {
+      name: "conversation_1748571678516",
+      type: "conversation",
+      metadata: {
+        position: {
+          x: -402.09880071417706,
+          y: 261.23643785138506,
+        },
+      },
+      prompt: "Say that the Interview will be generated shortly.",
+      model: {
+        provider: "openai",
+        model: "gpt-4o",
+        temperature: 0.7,
+        maxTokens: 1000,
+      },
+      messagePlan: {
+        firstMessage: "",
+      },
+    },
+    {
+      name: "API Request",
+      type: "tool",
+      metadata: {
+        position: {
+          x: -402.09880071417706,
+          y: 511.23643785138506,
+        },
+      },
+      tool: {
+        type: "apiRequest",
+        function: {
+          name: "untitled_tool",
+          parameters: {
+            type: "object",
+            properties: {},
+            required: [],
+          },
+        },
+        name: "sendUserData",
+        url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/vapi/generate`,
+        method: "POST",
+        headers: null,
+        body: {
+          type: "object",
+          properties: {
+            role: {
+              type: "string",
+              description: "",
+              value: "{{ role }}",
+            },
+            type: {
+              type: "string",
+              description: "",
+              value: "{{ type }}",
+            },
+            level: {
+              type: "string",
+              description: "",
+              value: "{{ level }}",
+            },
+            amount: {
+              type: "string",
+              description: "",
+              value: "{{ amount }}",
+            },
+            techstack: {
+              type: "string",
+              description: "",
+              value: "{{ techstack }}",
+            },
+            userid: {
+              type: "string",
+              description: "",
+              value: "{{ userid }}",
+            },
+          },
+        },
+      },
+    },
+    {
+      name: "conversation_1748572958482",
+      type: "conversation",
+      metadata: {
+        position: {
+          x: -402.09880071417706,
+          y: 761.2364378513851,
+        },
+      },
+      prompt:
+        "Thank the user for the conversation and inform them that the interview was generated succesfully.",
+      model: {
+        provider: "openai",
+        model: "gpt-4o",
+        temperature: 0.7,
+        maxTokens: 1000,
+      },
+      messagePlan: {
+        firstMessage: "",
+      },
+    },
+  ],
+  edges: [
+    {
+      from: "introduction",
+      to: "conversation_1748571678516",
+      condition: {
+        type: "ai",
+        prompt: "If user provided all the required variables.",
+      },
+    },
+    {
+      from: "conversation_1748571678516",
+      to: "API Request",
+      condition: {
+        type: "ai",
+        prompt: "if the user said yes",
+      },
+    },
+    {
+      from: "API Request",
+      to: "conversation_1748572958482",
+      condition: {
+        type: "ai",
+        prompt: "if the user said yes",
+      },
+    },
+  ],
+  globalPrompt:
+    "You are a voice assistant helping with creating new AI interviewers. Your task is to collect data from the user. Remember that this is a voice conversation - do not use any special characters.",
+};
